@@ -3,6 +3,7 @@ package vo;
 public class Cash {
 	private int cashNo;
 	private int categoryNo; // 'FK(참조키)'가 있으면 'INNER JOIN'이 발생할 수 있다 -> 발생하면 'Map타입' 사용
+	private String cashDate;
 	private long cashPrice;
 	private String cashMemo;
 	private String updatedate;
@@ -18,6 +19,12 @@ public class Cash {
 	}
 	public void setCategoryNo(int categoryNo) {
 		this.categoryNo = categoryNo;
+	}
+	public String getCashDate() {
+		return cashDate;
+	}
+	public void setCashDate(String cashDate) {
+		this.cashDate = cashDate;
 	}
 	public long getCashPrice() {
 		return cashPrice;
@@ -43,5 +50,5 @@ public class Cash {
 	public void setCreatedate(String createdate) {
 		this.createdate = createdate;
 	}
-	
+		
 }
