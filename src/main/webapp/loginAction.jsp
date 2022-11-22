@@ -5,13 +5,9 @@
 	request.setCharacterEncoding("UTF-8");
 
 	// Controller
-	
-	String memberId = request.getParameter("memberId");
-	String memberPw = request.getParameter("memberPw");
-	
 	Member paramMember = new Member(); // 모델 호출시 매개값
-	paramMember.setMemberId(memberId);
-	paramMember.setMemberPw(memberPw);
+	paramMember.setMemberId(request.getParameter("memberId"));
+	paramMember.setMemberPw(request.getParameter("memberPw"));
 	
 	// 분리된 Model 호출
 	MemberDao memberDao = new MemberDao();

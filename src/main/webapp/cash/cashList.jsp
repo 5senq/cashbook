@@ -1,12 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*"%>
 <%@ page import="dao.*"%>
+<%@ page import="vo.*"%>
 <%
 	// Controller : session, request
+	
+	// 로그인 유효성 검사
+	if(session.getAttribute("loginMember") == null) {
+		response.sendRedirect(request.getContextPath()+"/loginForm.jsp");
+		return;
+	}
+	
+	// session에 저장된 멤버(현재 로그인 사용자)를 Member타입에 저장 
+	Member loginMember = (Member)session.getAttribute("loginMember");
+	
 	// request 연도 + 월
 	int year = 0;
 	int month = 0;
 	
+	// 연도, 월 구하는 알고리즘
 	if((request.getParameter("year") == null) || request.getParameter("month") == null) {
 		Calendar today = Calendar.getInstance(); // 오늘 날짜
 		year = today.get(Calendar.YEAR);
@@ -17,21 +29,21 @@
 		// month -> -1, month -> 12 경우
 		if(month == -1) {
 			month = 11;
-			year -= 1;
+			year = year - 1;
 		}
 		if(month == 12) {
 			month = 0;
-			year += 1;
+			year = year + 1;
 		}
 	}
-	// 출력하고자 하는 월과 월의 1일의 요일(일 1, 월 2, 화 3, ... 토 7)
+	// 출력하고자 하는 월과 월의 1일의 요일(일 1, 월 2, 화 3, ... 토 7) 구하기
 	Calendar targetDate = Calendar.getInstance();
 	targetDate.set(Calendar.YEAR, year);
 	targetDate.set(Calendar.MONTH, month);
 	targetDate.set(Calendar.DATE, 1);
 	// firstDay는 1일의 요일
 	int firstDay = targetDate.get(Calendar.DAY_OF_WEEK); // 1일의 요일(일 1, 월 2, 화 3, ... 토 7)
-	// begin blank 개수는 
+	// begin blank 개수는 firstDay - 1
 	
 	// 마지막 날짜
 	int lastDate = targetDate.getActualMaximum(Calendar.DATE);
@@ -48,7 +60,7 @@
 	
 	// Model 호출 : 일별 cash 목록
 	CashDao cashDao = new CashDao();
-	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByMonth(year, month + 1);
+	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByMonth(loginMember.getMemberId(), year, month+1);
 	
 	// View : 달력 출력 + 일별 cash 목록
 %>
@@ -62,13 +74,16 @@
 <body>
 	<div>
 		<!-- 로그인 정보(세션 loginMember 변수) 출력 -->
+		<%=loginMember.getMemberName()%> 님
 	</div>
 	<div>
-		<%=year%>년 <%=month+1%>월 
+		<a href="<%=request.getContextPath()%>/cash/cashList.jsp?year=<%=year%>&month=<%=month-1%>">&#8701;이전달</a>
+		<%=year%> 년 <%=month+1%> 월
+		<a href="<%=request.getContextPath()%>/cash/cashList.jsp?year<%=year%>&month=<%=month+1%>">다음달&#8702;</a>
 	</div>
 	<div>
 		<!-- 달력 -->
-		<table>
+		<table border="1">
 			<tr>
 				<th>일</th>
 				<th>월</th>
@@ -84,10 +99,30 @@
 				%>
 						<td>
 							<%
-								int date = i - beginBlank;
-								if((i - beginBlank) > 0 && i <= lastDate) {
+								int date = i - beginBlank; // i는 td의 갯수라서 출력하면 안됨
+								if(date > 0 && date <= lastDate) {
 							%>
-									<%=date%>
+									<div>
+										<a href="<%=request.getContextPath()%>/cashDateList.jsp?year=<%=year%>&month=<%=month+1%>&date=<=%=date%>">
+											<%=date%>
+										</a>
+									</div>
+									<div>
+										<%
+											for(HashMap<String, Object> m : list) {
+												String cashDate = (String)(m.get("cashDate"));
+												if(Integer.parseInt(cashDate.substring(8)) == date) {
+										%>
+													<%=(String)(m.get("categoryKind"))%>
+													<%=(String)(m.get("categoryName")) %>
+													&nbsp;
+													<%=(Long)(m.get("cashPrice"))%>원
+													<br>
+										<%			
+												}
+											}
+										%>
+									</div>
 							<%		
 								}
 							%>
@@ -103,15 +138,6 @@
 				%>
 			</tr>
 		</table>	
-	</div>
-	<div>
-		<%
-			for(HashMap<String, Object> m : list) {
-		%>
-				<%=(Integer)(m.get("cashNo"))%>
-		<%		
-			}
-		%>
 	</div>
 </body>
 </html>
