@@ -18,7 +18,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>adminMain</title>
+<title>categoryList</title>
 </head>
 <body>
 	<ul>
@@ -27,7 +27,7 @@
 		<li><a href="<%=request.getContextPath()%>/admin/memberList.jsp">멤버관리</a></li> <!-- 목록, 레벨수정, 강제탈퇴 -->
 	</ul>
 	<div>
-		<!-- adminMain contents -->
+		<!-- categoryList contents -->
 	</div>
 </body>
 </html>

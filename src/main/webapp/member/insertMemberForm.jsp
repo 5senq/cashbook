@@ -47,7 +47,7 @@
 				<td><input type="text" name="memberName" value=""></td>
 			</tr>
 		</table>
-		<button type = "submit">회원가입</button>
+		<button type ="submit">회원가입</button>
 	</form>
 </body>
 </html>

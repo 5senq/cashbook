@@ -1,10 +1,39 @@
 package dao;
 
+
 import vo.*;
 import util.*;
 import java.sql.*;
+import java.util.*;
 
 public class MemberDao {
+	// 관리자 : 멤버 레벨 수정
+	public int updateMemberLevel(Member member) {
+		return 0;
+	}
+	
+	// 관리자 : 멤버 수
+	public int selectMemberCount() {
+		return 0;
+	}
+	
+	// 관리자 : 멤버 리스트
+	public ArrayList<Member> selectMemberListByPage(int beginRow, int rowPerPage) throws Exception {
+		/*
+		 ORDER BY createdate DESC
+		 */
+		return null;
+	}
+	
+	// 관리자 : 멤버 강퇴
+	public int deleteMemberByAdmin(Member member) {
+		return 0;
+	}
+	
+	// 회원탈퇴
+	public int deleteMember(Member member) {
+		return 0;
+	}
 	
 	// ID 중복확인
 	// 반환값 true : 이미 존재, false : 사용 가능
@@ -22,6 +51,8 @@ public class MemberDao {
 		dbUtil.close(rs, stmt, conn);
 		return result;
 	}
+	
+	
 	
 	// 회원가입
 	public int insertMember(Member paramMember) throws Exception {
@@ -70,6 +101,20 @@ public class MemberDao {
 		conn.close();
 		
 		return resultMember; 
+	}
+	
+	// 회원정보 수정
+	public ArrayList<HashMap<String, Object>> selectMemberListById(String memberId) throws Exception {
+		ArrayList<HashMap<String, Object>> updateMemberList = new ArrayList<HashMap<String, Object>>();
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		String updateSql = "SELECT member_no memberNo, member_id memberId, member_name memberName FROM member WHERE member_id = ?";
+		PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+		updateStmt.setString(1, memberId);
+		ResultSet updateRs = updateStmt.executeQuery();
+		while(updateRs.next()) {
+			HashMap<String, Object> m = new HashMap<String, Object>();
+		}
 	}
 }
 

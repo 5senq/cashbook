@@ -7,6 +7,21 @@ import util.DBUtil;
 import vo.Notice;
 
 public class NoticeDao {
+	public int deletNotice(Notice notice) throws Exception {
+		String sql = "DELETE FROM notice WHERE notice_no = ?";
+		return 0;
+	}
+	
+	public int updateNotice(Notice notice) throws Exception {
+		String sql = "UPDATE notice SET notice_memo = ? WHERE notice_no = ?";
+		return 0;
+	}
+	
+	public int insertNotice(Notice notice) throws Exception {
+		String sql = "INSERT notice(notice_memo, updatedate, createdate)" + " VALUES(?, NOW(), NOW())"; // DB
+		return 0;
+	}
+	
 	// 마지막 페이지를 구할려면 전체 row 수가 필요
 	public int selectNoticeCount() {
 		int count = 0;

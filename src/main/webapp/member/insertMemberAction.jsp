@@ -13,6 +13,8 @@
 	String memberPw = request.getParameter("memberPw");
 	String memberName = request.getParameter("memberName");
 	
+	
+	
 	if(session.getAttribute("loginMember") != null) {
 		response.sendRedirect(request.getContextPath()+"/cash/cashList.jsp");
 		return;
@@ -32,11 +34,17 @@
 	// 분리된 M 호출
 	MemberDao memberDao = new MemberDao();
 	if(memberDao.selectMemberIdCk(memberId)) {
-		System.out.println("중복 아이디");
-		response.sendRedirect(request.getContextPath()+"/insertMemberForm");
+		String msg = URLEncoder.encode("중복된 아이디입니다.","utf-8");
+		response.sendRedirect(request.getContextPath()+"/member/insertMemberForm.jsp?msg=" + msg);
 		return;
 	}
+	
 	int row = memberDao.insertMember(paramMember);
 	System.out.println(row + " <-- insertMemberAction.jsp row");
-	response.sendRedirect(request.getContextPath()+"/loginForm.jsp");
+	if(row == 1) {
+		String msg = URLEncoder.encode("회원가입이 완료되었습니다","utf-8");
+		response.sendRedirect(request.getContextPath()+"/loginForm.jsp?msg=" + msg);
+		return;
+	}
+	
 %>
