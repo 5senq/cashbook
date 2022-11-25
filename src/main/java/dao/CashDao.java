@@ -40,7 +40,7 @@ public class CashDao {
 		m.put("cashNo", rs.getInt("cashNo"));
 		m.put("cashDate", rs.getString("cashDate"));
 		m.put("cashPrice", rs.getLong("cashPrice"));
-		m.put("cashMemo", rs.getLong("cashMemo"));
+		m.put("cashMemo", rs.getString("cashMemo"));
 		m.put("categoryKind", rs.getString("categoryKind"));
 		m.put("categoryName", rs.getString("categoryName"));
 		list.add(m);

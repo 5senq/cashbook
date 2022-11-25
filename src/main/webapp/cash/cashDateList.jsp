@@ -1,7 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import = "java.util.*" %>
-<%@ page import = "dao.*" %>
-<%@ page import = "vo.*" %>
+<%@ page import="java.util.*"%>
+<%@ page import="java.sql.*"%>
+<%@ page import="dao.*"%>
+<%@ page import="vo.*"%>
+<%@ page import="java.net.URLEncoder"%>
 <%
 	// Controller
 	
@@ -11,20 +13,35 @@
 		return;
 	}
 	
+	// Map 매개변수
 	Member loginMember = (Member)session.getAttribute("loginMember");
 	
+	// 연도, 월, 일 가져오기
 	int year = 0;
 	int month = 0;
 	int date = 0;
+	
+	if(request.getParameter("year") == null || request.getParameter("month") == null || request.getParameter("date") == null || request.getParameter("year").equals("") || request.getParameter("month").equals("") || request.getParameter("date").equals("")) {
+	System.out.println("dddd");
+	} else {
+		year = Integer.parseInt(request.getParameter("year"));
+		month = Integer.parseInt(request.getParameter("month"));
+		date = Integer.parseInt(request.getParameter("date"));
+	}
+	
+	String title = year + "년" + month + "월" + date + "일";
+	
+	
 
 	// Model 호출
 	
+	// category 정보를 list에 저장
 	CategoryDao categoryDao = new CategoryDao();
 	ArrayList<Category> categoryList = categoryDao.selectCategoryList();
 	
+	// cash 정보를 list에 저장
 	CashDao cashDao = new CashDao(); 
-	ArrayList<HashMap<String, Object>> list 
-		= cashDao.selectCashListByDate(loginMember.getMemberId(), year, month, date);
+	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByDate(loginMember.getMemberId(), year, month, date);
 	
 	// View
 %>
@@ -32,16 +49,25 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>cashDateList</title>
 </head>
 <body>
 	<!-- cash 입력 폼 -->
 	<form action="<%=request.getContextPath()%>/cash/insertCashAction.jsp" method="post">
 		<input type="hidden" name="memberId" value="<%=loginMember.getMemberId()%>">
-		<table border="1">
+		<input type="hidden" name="year" value="<%=year%>">
+		<input type="hidden" name="month" value="<%=month%>">
+		<input type="hidden" name="date" value="<%=date%>">
+		<table>
 			<tr>
 				<td>categoryNo</td>
-				<td>
+				<td>cashDate</td>
+				<td>categoryName</td>
+				<td>cashPrice</td>
+				<td>cashMemo</td>
+			</tr>
+			<tr>
+				<td>	
 					<select name = "categoryNo">
 						<%
 							for(Category c : categoryList) {
@@ -54,19 +80,10 @@
 						%>
 					</select>
 				</td>
-			</tr>
-			<tr>
 				<td>cashDate</td>
-				<td>
-					<input type="text" name="cashDate" 
-						value="<%=year%>-<%=month%>-<%=date%>" readonly="readonly">
-				</td>
-			</tr>
-			<tr>
-				<td>cashMemo</td>
-				<td>
-					<textarea rows="3" cols="50" name="cashMemo"></textarea>
-				</td>
+				<td><input type="text" name="cashDate" value="<%=year%>-<%=month%>-<%=date%>" readonly="readonly"></td>
+				<td><input type="number" name="cashPrice" value=""></td>
+				<td><textarea rows="3" cols="50" name="cashMemo"></textarea></td>
 			</tr>
 		</table>
 		<button type="submit">입력</button>
@@ -74,27 +91,38 @@
 	<!-- cash 목록 출력 -->
 	<table border="1">
 		<tr>
-			<th>categoryKind</th>
-			<th>categoryName</th>
-			<th>cashPrice</th>
-			<th>cashMemo</th>
-			<th>수정</th><!-- /cash/deleteCash.jsp?cashNo= -->
-			<th>삭제</th><!-- /cash/updateCashForm.jsp?cashNo= -->
+			<td>categoryKind</td>
+			<td>categoryName</td>
+			<td>cashPrice</td>
+			<td>cashMemo</td>
+			<td>수정</td><!-- /cash/deleteCash.jsp?cashNo= -->
+			<td>삭제</td><!-- /cash/updateCashForm.jsp?cashNo= -->
 		</tr>
-		<%
-			for(HashMap<String, Object> m : list) {
-		%>
-				<tr>
-					<td><%=m.get("categoryKind")%></td>
-					<td><%=m.get("categoryName")%></td>
-					<td><%=m.get("cashPrice")%></td>
-					<td><%=m.get("cashMemo")%></td>
-					<td><a href="">수정</a></td>
-					<td><a href="">삭제</a></td>
-				</tr>
-		<%		
-			}
-		%>
+		<tr>
+			<%
+				for(HashMap<String, Object> m : list) {
+					
+					if(m.get("categoryKind").equals("지출")) {
+			%>
+						<td style="color:blue;"><%=m.get("categoryKind")%></td>
+			<%			
+					} else {
+			%>
+						<td style="color:red;"><%=m.get("categoryName")%></td>
+			<%			
+					}
+			%>
+				
+				
+				<td><%=m.get("cashPrice")%></td>
+				<td><%=m.get("cashMemo")%></td>
+				<td><a href="">수정</a></td>
+				<td><a href="">삭제</a></td>
+		
+			<%		
+				}
+			%>
+		</tr>
 	</table>
 </body>
 </html>

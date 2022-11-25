@@ -2,7 +2,9 @@
 <%@ page import="java.util.*"%>
 <%@ page import="dao.*"%>
 <%@ page import="vo.*"%>
+<%@ page import="java.net.URLEncoder"%>
 <%
+	request.setCharacterEncoding("UTF-8");
 	// Controller : session, request
 	
 	// 로그인 유효성 검사
@@ -13,6 +15,7 @@
 	
 	// session에 저장된 멤버(현재 로그인 사용자)를 Member타입에 저장 
 	Member loginMember = (Member)session.getAttribute("loginMember");
+	String memberId = loginMember.getMemberId();
 	
 	// request 연도 + 월
 	int year = 0;
@@ -75,6 +78,14 @@
 	<div>
 		<!-- 로그인 정보(세션 loginMember 변수) 출력 -->
 		<%=loginMember.getMemberName()%> 님
+		<a href="">로그아웃</a>
+		<%
+			if(loginMember.getMemberLevel() > 0) {
+		%>
+				<a href="<%=request.getContextPath()%>/admin/adminMain.jsp">관리자페이지</a>
+		<%		
+			}
+		%>
 	</div>
 	<div>
 		<a href="<%=request.getContextPath()%>/cash/cashList.jsp?year=<%=year%>&month=<%=month-1%>">&#8701;이전달</a>
@@ -103,7 +114,7 @@
 								if(date > 0 && date <= lastDate) {
 							%>
 									<div>
-										<a href="<%=request.getContextPath()%>/cashDateList.jsp?year=<%=year%>&month=<%=month+1%>&date=<=%=date%>">
+										<a href="<%=request.getContextPath()%>/cash/cashDateList.jsp?year=<%=year%>&month=<%=month+1%>&date=<%=date%>">
 											<%=date%>
 										</a>
 									</div>
