@@ -43,4 +43,15 @@
 	
 	MemberDao memberDao = new MemberDao();
 	int resultRow = memberDao.update(updateMember);
+	
+	String redirectUrl = "/cash/cashList.jsp";
+	// MemberDao에서 넘겨받은 결과 resultRow값이 '0'이라면 실행되지 않은 상황
+	if(resultRow == 0) {
+		String msg = URLEncoder.encode("정보를 다시 한번 확인해주세요.","utf-8");
+		response.sendRedirect(request.getContextPath() + "/member/updateMemberForm.jsp?msg=" + msg);
+		return;
+	}
+	
+	session.setAttribute("loginMember", updateMember);
+	response.sendRedirect(request.getContextPath() + redirectUrl);
 %>
