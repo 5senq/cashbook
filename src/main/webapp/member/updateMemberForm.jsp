@@ -11,7 +11,6 @@
 
 	// session에 저장된 멤버(현재 로그인 사용자)를 Member타입에 저장 
 	Member loginMember = (Member)session.getAttribute("loginMember");
-	String memberId = loginMember.getMemberId();
 	
 	// 로그인 유효성 검사
 	if(session.getAttribute("loginMember") == null) {
@@ -22,15 +21,55 @@
 	// M
 	
 	MemberDao memberDao = new MemberDao();
-	ArrayList<HashMap<String, Object>> updateMemberList = memberDao.selectMemberIdCk(loginMember.getMemberId());
-%>
+	ArrayList<HashMap<String, Object>> updateMemberList = memberDao.selectMemberListById(loginMember.getMemberId());
+	%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>updateMemberForm</title>
 </head>
 <body>
-
+	<h1>회원정보 수정</h1>
+	<%
+		if(request.getParameter("msg") != null) {
+	%>
+			<div><%=request.getParameter("msg")%></div>
+	<%		
+		}
+	%>
+	<!-- 폼 작성 -->
+	<form action="<%=request.getContextPath()%>/member/updateMemberAction.jsp" method="post">
+		<%
+			for(HashMap<String, Object> m : updateMemberList) {
+				String memberId = (String)(m.get("memberId"));
+				String memberName = (String)(m.get("memberName"));
+		%>
+			<input type="hidden" name="memberNo" value="">
+			<table>
+				<tr>
+					<td>아이디</td>
+					<td>
+						<input type="text" name="memberId" value="<%=memberId%>" readonly="readonly">
+					</td>
+					<td>비밀번호</td>
+					<td>
+						<input type="password" name="memberPw" value="">
+					</td>
+					<td>이름</td>
+					<td>
+						<input type="text" name="memberName" value="<%=memberName%>">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<button type="submit">수정</button>
+					</td>
+				</tr>
+			</table>
+		<%
+			}
+		%>
+	</form>
 </body>
 </html>

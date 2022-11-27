@@ -83,7 +83,7 @@ public class MemberDao {
 		*/
 		DBUtil dbUtil = new DBUtil();
 		Connection conn = dbUtil.getConnection();
-		String loginSql = "SELECT member_id memberId, member_level memberLevel, member_name memberName FROM member WHERE member_id=? AND member_pw=?";
+		String loginSql = "SELECT member_id memberId, member_level memberLevel, member_name memberName FROM member WHERE member_id = ? AND member_pw = ?";
 		PreparedStatement loginStmt = conn.prepareStatement(loginSql);
 		loginStmt.setString(1, paramMember.getMemberId());
 		loginStmt.setString(2, paramMember.getMemberPw());
@@ -104,6 +104,7 @@ public class MemberDao {
 	}
 	
 	// 회원정보 수정
+	// updateMemberForm.jsp
 	public ArrayList<HashMap<String, Object>> selectMemberListById(String memberId) throws Exception {
 		ArrayList<HashMap<String, Object>> updateMemberList = new ArrayList<HashMap<String, Object>>();
 		DBUtil dbUtil = new DBUtil();
@@ -114,7 +115,40 @@ public class MemberDao {
 		ResultSet updateRs = updateStmt.executeQuery();
 		while(updateRs.next()) {
 			HashMap<String, Object> m = new HashMap<String, Object>();
+			m.put("memberNo", updateRs.getInt("memberNo"));
+			m.put("memberId", updateRs.getString("memberId"));
+			m.put("memberName", updateRs.getString("memberName"));
+			updateMemberList.add(m);
 		}
+		
+		updateRs.close();
+		updateStmt.close();
+		conn.close();
+		
+		return updateMemberList;
+	}
+	
+	// updateMemberAction.jsp
+	public int update(Member updateMember) throws Exception {
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		int resultRow = 0;
+		String upActSql = "UPDATE member SET mamber_name = ? WHERE member_id = ? AND member_pw = PASSWORD(?)";
+		PreparedStatement upActStmt = conn.prepareStatement(upActSql);
+		upActStmt.setString(1, updateMember.getMemberName());
+		upActStmt.setString(2, updateMember.getMemberId());
+		upActStmt.setString(3, updateMember.getMemberPw());
+		resultRow = upActStmt.executeUpdate();
+		if(resultRow == 1) {
+			System.out.println("회원정보 수정완료");
+		} else {
+			System.out.println("회원정보 수정실패");
+		}
+		
+		upActStmt.close();
+		conn.close();
+			
+		return resultRow;
 	}
 }
 
