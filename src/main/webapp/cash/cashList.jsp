@@ -8,15 +8,17 @@
 	
 	request.setCharacterEncoding("UTF-8");
 	
-	// session에 저장된 멤버(현재 로그인 사용자)를 Member타입에 저장 
-	Member loginMember = (Member)session.getAttribute("loginMember");
-	String memberId = loginMember.getMemberId();
-	
 	// 로그인 유효성 검사
 	if(session.getAttribute("loginMember") == null) {
 		response.sendRedirect(request.getContextPath()+"/loginForm.jsp");
 		return;
 	}
+
+	// session에 저장된 멤버(현재 로그인 사용자)를 Member타입에 저장 
+	Member loginMember = (Member)session.getAttribute("loginMember");
+	String memberId = loginMember.getMemberId();
+	
+	
 	
 	// request 연도 + 월
 	int year = 0;
@@ -127,7 +129,7 @@
 													if(Integer.parseInt(cashDate.substring(8)) == date) {
 											%>
 														<%=(String)(m.get("categoryKind"))%>
-														<%=(String)(m.get("categoryName")) %>
+														<%=(String)(m.get("categoryName"))%>
 														&nbsp;
 														<%=(Long)(m.get("cashPrice"))%>원
 														<br>

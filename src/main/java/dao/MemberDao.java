@@ -25,15 +25,17 @@ public class MemberDao {
 		return null;
 	}
 	
-	// 관리자 : 멤버 강퇴
+	// 관리자 : 멤버 강퇴(회원 넘버로 삭제)
 	public int deleteMemberByAdmin(Member member) {
 		return 0;
 	}
 	
-	// 회원탈퇴
+	/*
+	회원탈퇴
 	public int deleteMember(Member member) {
 		return 0;
 	}
+	*/
 	
 	// ID 중복확인
 	// 반환값 true : 이미 존재, false : 사용 가능
@@ -149,6 +151,64 @@ public class MemberDao {
 		conn.close();
 			
 		return resultRow;
+	}
+	
+	// updatePwAction.jsp
+	public Member updateMemberPw(Member paramMember, String newPw) throws Exception {
+		Member resultMember = null;
+		// 1. DB 연결
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		// 2. sql을 이용하여 Delete
+		String newPwSql = "UPDATE member SET member_pw = PASSWORD(?), updatedate = CURDATE() WHERE member_id = ? AND member_pw = PASSWORD(?)";
+		PreparedStatement newPwStmt = conn.prepareStatement(newPwSql);
+		newPwStmt.setString(1, newPw);
+		newPwStmt.setString(2, paramMember.getMemberId());
+		newPwStmt.setString(3, paramMember.getMemberPw());
+		
+		int row = newPwStmt.executeUpdate();
+		
+		if(row == 1) {
+			
+			resultMember = new Member();
+			resultMember.setMemberId(paramMember.getMemberId());
+			resultMember.setMemberPw(newPw);
+			
+		} 
+		dbUtil.close(null, newPwStmt, conn);
+		
+		return resultMember;
+	}
+	
+	// 입력한 두 비밀번호가 일치하는지 확인하는 method
+	public boolean passwordCheck(String pw, String pwCheck) {
+		boolean result = false;
+		if(pw.equals(pwCheck)) {
+			result = true;
+		}
+		return result;
+	}
+
+	// 회원탈퇴
+	public boolean deleteMember(Member paramMember) throws Exception {
+		boolean result = false;
+		// 1. DB 연결
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = dbUtil.getConnection();
+		// 2. sql을 이용하여 Delete
+		String deleteSql = "DELETE FROM member WHERE member_id = ? AND member_pw = PASSWORD(?)";
+		PreparedStatement deleteStmt = conn.prepareStatement(deleteSql);
+		deleteStmt.setString(1, paramMember.getMemberId());
+		deleteStmt.setString(2, paramMember.getMemberPw());
+		
+		int row = deleteStmt.executeUpdate();
+		
+		if(row == 1) {
+			result = true;
+		}
+		dbUtil.close(null, deleteStmt, conn);
+		
+		return result;
 	}
 }
 
