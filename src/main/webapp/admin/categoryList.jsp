@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="vo.*"%>
+<%@ page import="dao.*"%>
+<%@ page import="java.util.*"%>
 <%
 	// C
 	Member loginMember = (Member)session.getAttribute("login");
@@ -9,6 +11,8 @@
 	}
 	
 	// M
+	CategoryDao categoryDao = new CategoryDao();
+	ArrayList<Category> categoryList = categoryDao.selectCategoryListByAdmin();
 	
 	// 최근 공지 5개, 최근 멤버 5명
 	
@@ -28,6 +32,20 @@
 	</ul>
 	<div>
 		<!-- categoryList contents -->
+		<h1>카테고리 목록</h1>
+		<a href="">카테고리 추가</a>
+		<table>
+			<tr>
+				<th>번호</th>
+				<th>수입/지출</th>
+				<th>이름</th>
+				<th>마지막 수정일</th>
+				<th>생성일</th>
+				<th>수정</th>
+				<th>삭제</th>
+			</tr>
+			<!-- 모델데이터 categoryList 출력 -->
+		</table>
 	</div>
 </body>
 </html>
