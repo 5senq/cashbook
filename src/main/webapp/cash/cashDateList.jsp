@@ -41,7 +41,7 @@
 	
 	// cash 정보를 list에 저장
 	CashDao cashDao = new CashDao(); 
-	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByDate(loginMember.getMemberId(), year, month, date);
+	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByDate(loginMember.getMemberId(), year, month + 1, date);
 	
 	// View
 %>
@@ -116,8 +116,8 @@
 				
 				<td><%=m.get("cashPrice")%></td>
 				<td><%=m.get("cashMemo")%></td>
-				<td><a href="">수정</a></td>
-				<td><a href="">삭제</a></td>
+				<td><a href="<%=request.getContextPath()%>/cash/updateCashForm.jsp?year=<%=year%>&month=<%=month%>&date=<%=date%>&cashNo=<%=(Integer)m.get("cashNo")%>">수정</a></td>
+				<td><a href="<%=request.getContextPath()%>/cash/deleteCashAction.jsp?year=<%=year%>&month=<%=month%>&date=<%=date%>&cashNo=<%=(Integer)m.get("cashNo")%>">삭제</a></td>
 		
 			<%		
 				}
