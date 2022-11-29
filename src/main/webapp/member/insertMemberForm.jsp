@@ -13,7 +13,11 @@
 		return;
 	}
 
-	String msg = request.getParameter("msg");
+	if(request.getParameter("msg") != null) {
+		String msg = request.getParameter("msg");
+		out.println("<script>alert('"+msg+"');</script>");
+		msg = null;
+	}
 %>
 <!DOCTYPE html>
 <html>
@@ -24,19 +28,12 @@
 <body>
 	<h1>회원가입</h1>
 	<div>
-		<form action="<%=request.getContextPath()%>/member/insertMemberAction.jsp">
+		<form action="<%=request.getContextPath()%>/member/insertMemberAction.jsp" method="post">
 			<table>
 				<tr>
 					<td>회원 아이디</td>
 					<td>
 						<input type="text" name="memberId" value="">
-						<%
-							if(msg !=null) {
-						%>
-								<span><%=msg%></span>
-						<%
-							}
-						%>
 					</td>
 				</tr>
 				<tr>
@@ -44,7 +41,7 @@
 					<td><input type="password" name="memberPw" value=""></td>
 				</tr>
 				<tr>
-					<td>회원 이름</td>
+					<td>닉네임</td>
 					<td><input type="text" name="memberName" value=""></td>
 				</tr>
 			</table>

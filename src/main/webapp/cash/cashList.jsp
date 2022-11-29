@@ -2,6 +2,7 @@
 <%@ page import="vo.*"%>
 <%@ page import="dao.*"%>
 <%@ page import="java.util.*"%>
+<%@ page import="java.net.URLEncoder"%>
 <%
 	
 	// Controller : session, request
@@ -10,15 +11,20 @@
 	
 	// 로그인 유효성 검사
 	if(session.getAttribute("loginMember") == null) {
-		response.sendRedirect(request.getContextPath()+"/loginForm.jsp");
+		String msg = "로그인이 필요합니다.";
+		response.sendRedirect(request.getContextPath() + "/loginForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
 		return;
 	}
-
+	
+	if(request.getParameter("msg") != null) {
+		String msg = request.getParameter("msg");
+		out.println("<script>alert('"+msg+"');</script>");
+		msg = null;
+	}
+	
 	// session에 저장된 멤버(현재 로그인 사용자)를 Member타입에 저장 
 	Member loginMember = (Member)session.getAttribute("loginMember");
 	String memberId = loginMember.getMemberId();
-	
-	
 	
 	// request 연도 + 월
 	int year = 0;
@@ -35,11 +41,10 @@
 		// month -> -1, month -> 12 경우
 		if(month == -1) {
 			month = 11;
-			year -= 1;
-		}
-		if(month == 12) {
+			year = year -1;
+		} else if(month == 12) {
 			month = 0;
-			year += 1;
+			year = year + 1;
 		}
 	}
 	// 출력하고자 하는 월과 월의 1일의 요일(일 1, 월 2, 화 3, ... 토 7) 구하기
@@ -47,6 +52,7 @@
 	targetDate.set(Calendar.YEAR, year);
 	targetDate.set(Calendar.MONTH, month);
 	targetDate.set(Calendar.DATE, 1);
+	
 	// firstDay는 1일의 요일
 	int firstDay = targetDate.get(Calendar.DAY_OF_WEEK); // 1일의 요일(일 1, 월 2, 화 3, ... 토 7)
 	// begin blank 개수는 firstDay - 1
@@ -64,9 +70,13 @@
 	// 전체 td의 개수 : 7로 나누어 떨어져야한다.
 	int totalTd = beginBlank + lastDate + endBlank;
 	
+	long totalCash = 0;
+	long expenseCash = 0;
+	long importCash = 0;
+	
 	// Model 호출 : 일별 cash 목록
 	CashDao cashDao = new CashDao();
-	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByMonth(loginMember.getMemberId(), year, month+1);
+	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByMonth(year, month+1, memberId);
 	// ArrayList 형태로 저장되어 있는 cashDao.selectCashListByMonth method로 (loginMember.getMemberId(), year, month+1)을 보내고, 결과값 ArrayList<HashMap> 형태로 list값에 세팅한다
 	
 	// View : 달력 출력 + 일별 cash 목록 출력
@@ -82,7 +92,7 @@
 		<div>
 			<!-- 로그인 정보(세션 loginMember 변수) 출력 -->
 			<%=loginMember.getMemberName()%> 님
-			<a href="">로그아웃</a>
+			<a href="<%=request.getContextPath()%>/logout.jsp">로그아웃</a>
 			<%
 				if(loginMember.getMemberLevel() > 0) {
 			%>
@@ -153,6 +163,9 @@
 					%>
 				</tr>
 			</table>	
+		</div>
+		<div>
+			<jsp:include page="/inc/footer.jsp"></jsp:include>
 		</div>
 		<div>
 			<a href="<%=request.getContextPath()%>/cash/cashList.jsp">뒤로</a>

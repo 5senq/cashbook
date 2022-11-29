@@ -6,24 +6,33 @@
 	request.setCharacterEncoding("UTF-8");
 
 	// Controller
-	String memberId = request.getParameter("memberId"); // loginForm에서 넘겨받음
-	
-	Member paramMember = new Member(); // 모델 호출시 매개값 (vo.Member Class를 이용하여 paramMember를 새로 선언)
-	paramMember.setMemberId(request.getParameter("memberId")); // 새로 선언된 paramMember에 넘겨받은 값 세팅
-	paramMember.setMemberPw(request.getParameter("memberPw"));
-	
-	// 분리된 Model 호출
-	MemberDao memberDao = new MemberDao(); // memberDao method를 이용해 memberDao를 새로 선언
-	Member resultMember = memberDao.login(paramMember); // 위에서 내려온 paramMember값을 MemberDao.login() Class에 보내고 결과값으로 resutlMember값을 받음
-	
-	String redirectUrl = "/loginForm.jsp"; // redirectUrl값에 필요시 돌아갈 주소값 세팅
-	
-	if(resultMember !=null) { // MemberDao에서 넘겨받은 결과 resultMember값이 null이 아니라면 수행
-		session.setAttribute("loginMember", resultMember); // session안에 loginId & Name을 저장
-		redirectUrl = "/cash/cashList.jsp"; // 로그인 후 cashList 화면으로 가겠습니다
+	if(session.getAttribute("loginMember") != null) {
+		response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
+		return;
+	}
+
+	if(request.getParameter("memberId") == null || request.getParameter("memberId").equals("") || request.getParameter("memberPw") == null || request.getParameter("memberPw").equals("")) {
+		String msg = "로그인 정보를 입력해주세요.";
+		response.sendRedirect(request.getContextPath() + "/loginForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+		return;
 	}
 	
-	// redirect
-	response.sendRedirect(request.getContextPath()+redirectUrl);
-
+	Member paramMember = new Member();
+	paramMember.setMemberId(request.getParameter("memberId"));
+	paramMember.setMemberPw(request.getParameter("memberPw"));
+	
+	// M
+	MemberDao memberDao = new MemberDao();
+	Member loginMember = memberDao.login(paramMember);
+	
+	String redirectUrl = "/loginForm.jsp?&msg=";
+	String msg = "로그인 실패";
+	
+	if(loginMember != null) {
+		session.setAttribute("loginMember", loginMember);
+		redirectUrl = "/cash/cashList.jsp?&msg=";
+		msg = "로그인 성공";
+	}
+	
+	response.sendRedirect(request.getContextPath() + redirectUrl + URLEncoder.encode(msg, "UTF-8"));
 %>
