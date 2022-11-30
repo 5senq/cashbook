@@ -5,35 +5,52 @@
 <%@ page import="java.util.*"%>
 <%@ page import="java.net.URLEncoder"%>
 <%
-	// C
-	
-	if(request.getParameter("memberPw") == null || request.getParameter("memberPw").equals("")) {
-		
-		String msg = URLEncoder.encode("모든 정보를 입력해주세요","utf-8");
-		
-		String targetUrl = "/member/deleteMemberForm.jsp";
-		response.sendRedirect(request.getContextPath() + targetUrl + "?msg=" + msg);
+//C
+	request.setCharacterEncoding("UTF-8");
+
+	//로그인이 되어 있지 않을 때 접근 불가
+	if(session.getAttribute("loginMember") == null) {
+		String msg = "로그인이 필요합니다.";
+		response.sendRedirect(request.getContextPath() + "/loginForm.jsp?&msg=" + URLEncoder.encode(msg, "UTF-8"));
 		return;
 	}
 
-	Member loginMember = (Member)session.getAttribute("loginMember");
+	// deleteMemberForm.jsp에서 받아온 값이 null 또는 "" 일 때
+	if(request.getParameter("memberPw") == null || request.getParameter("memberPwCk") == null ||
+		request.getParameter("memberPw").equals("") || request.getParameter("memberPwCk").equals("")) {
+
+		String msg = "모든 정보를 입력해주세요.";
+		response.sendRedirect(request.getContextPath() + "/member/deleteMemberForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+		return;
 	
-	loginMember.setMemberPw(request.getParameter("memberPw"));
+	} else if(!request.getParameter("memberPw").equals(request.getParameter("memberPwCk"))) {
+		String msg = "비밀번호를 다시 한번 확인해주세요.";
+		response.sendRedirect(request.getContextPath() + "/member/deleteMemberForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+		return;
+	}
+	
+	String msg = null;
+	
+	String memberPw = request.getParameter("memberPw");
+	String memberPwCk = request.getParameter("memberPwCk");
+	
+	Member paramMember = (Member)session.getAttribute("loginMember");
+	paramMember.setMemberPw(memberPw);
 	
 	MemberDao memberDao = new MemberDao();
 	
-	if(memberDao.deleteMember(loginMember)) {
-		System.out.println("회원탈퇴 완료");
-		
-		String targetUrl = "/logout.jsp";
-		response.sendRedirect(request.getContextPath() + targetUrl);
-	} else {
+	int deleteMember = memberDao.deleteMember(paramMember);
+	if(deleteMember == 0) {
 		System.out.println("회원탈퇴 실패");
-		
-		String msg = URLEncoder.encode("비밀번호를 다시 한번 확인해주세요.","utf-8");
-		
-		// msg를 가지고 다시 deleteMemberForm.jsp로 이동
-		String targetUrl = "member/deleteMemberForm.jsp";
-		response.sendRedirect(request.getContextPath() + targetUrl + "?msg=" + msg);
+		msg = "비밀번호를 다시 한번 확인해주세요.";
+		response.sendRedirect(request.getContextPath() + "/member/deleteMemberForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+		return;
+	} else {
+		System.out.println("회원탈퇴 성공");
+		msg = "회원탈퇴가 완료되었습니다.";
 	}
+	
+	session.invalidate();
+	response.sendRedirect(request.getContextPath() + "/loginForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+	
 %>

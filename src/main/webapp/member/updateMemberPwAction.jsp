@@ -9,51 +9,49 @@
 
 	request.setCharacterEncoding("UTF-8");
 
-	// updateMemberPwForm.jsp에서 받아온 값이 null 또는 "" 일 때
-	if(request.getParameter("memberId") == null || request.getParameter("memberPw") == null || request.getParameter("memberNewPw") == null || request.getParameter("memberNewPwCk") == null ||
-		request.getParameter("memberId").equals("") || request.getParameter("memberPw").equals("") || request.getParameter("memberNewPw").equals("") ||	request.getParameter("memberNewPwCk").equals("")) {
-
-		String msg = URLEncoder.encode("모든 정보를 입력해주세요.","utf-8");
-		String targetUrl = "/updateMemberForm.jsp";
-		response.sendRedirect(request.getContextPath() + targetUrl + "?msg=" + msg);
+	//로그인이 되어 있지 않을 때 접근 불가
+	if(session.getAttribute("loginMember") == null) {
+		String msg = "로그인이 필요합니다.";
+		response.sendRedirect(request.getContextPath() + "/loginForm.jsp?&msg=" + URLEncoder.encode(msg, "UTF-8"));
 		return;
 	}
+
+	// updateMemberPwForm.jsp에서 받아온 값이 null 또는 "" 일 때
+	if(request.getParameter("memberPw") == null || request.getParameter("changePw") == null || request.getParameter("changePwCk") == null ||
+		request.getParameter("memberPw").equals("") || request.getParameter("changePw").equals("") || request.getParameter("changePwCk").equals("")) {
+
+		String msg = "모든 정보를 입력해주세요.";
+		response.sendRedirect(request.getContextPath() + "/member/updateMemberPwForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+		return;
+	
+	} else if(!request.getParameter("changePw").equals(request.getParameter("changePwCk"))) {
+		String msg = "변경할 비밀번호를 다시 한번 확인해주세요.";
+		response.sendRedirect(request.getContextPath() + "/member/updateMemberPwForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+		return;
+	}
+	
+	String msg = null;
+	
+	String memberPw = request.getParameter("memberPw");
+	String changePw = request.getParameter("changePw");
+	String changePwCk = request.getParameter("changePwCk");
+	
+	Member paramMember = (Member)session.getAttribute("loginMember");
+	paramMember.setMemberPw(memberPw);
 	
 	MemberDao memberDao = new MemberDao();
-	Member updateMember = new Member();
 	
-	// updateMemberPwForm에서 받아온 값을 updateMember에 저장
-	updateMember.setMemberId(request.getParameter("memberId"));
-	updateMember.setMemberPw(request.getParameter("memberPw"));
-	
-	// 새 비밀번호
-	String newPw = request.getParameter("memberNewPw");
-	String newPwCk = request.getParameter("memberNewPwCk");
-	
-	// M
-	
-	// 비밀번호 수정 전 newPw와 newPwCk가 일치하는지 확인
-	if(memberDao.passwordCheck(newPw, newPwCk)) { // 일치 -> 비밀번호 수정
-		updateMember = memberDao.updateMemberPw(updateMember, newPw);
-		if(updateMember != null) { // 비밀번호 수정 성공시
-			// 수정된 updateMember를 새로 세션에 넣기
-			Member loginMember = memberDao.login(updateMember);
-			session.setAttribute("loginMember", loginMember);
-			
-			String msg = URLEncoder.encode("비밀번호 수정 성공","utf-8");
-			String targetUrl = "/cash/cashList.jsp";
-			response.sendRedirect(request.getContextPath() + targetUrl + "?msg=" + msg);
-			return;
-		} else { // 비밀번호 수정 실패시
-			String msg = URLEncoder.encode("입력하신 정보들을 다시 한번 확인해주세요.","utf-8");
-			String targetUrl = "/member/updateMemberPwForm.jsp";
-			response.sendRedirect(request.getContextPath() + targetUrl + "?msg=" + msg);
-			return;
-		}
-	} else { // 불일치 -> updatePwForm.jsp로 이동
-		String msg = URLEncoder.encode("새로 입력하신 두 비밀번호가 일치하지 않습니다","utf-8");
-		String targetUrl = "/member/updateMemberPwForm.jsp";
-		response.sendRedirect(request.getContextPath() + targetUrl + "?msg=" + msg);
+	int updateMemberPwCheck = memberDao.updateMemberPw(paramMember, changePw);
+	if(updateMemberPwCheck == 0) {
+		System.out.println("수정 실패");
+		msg = "수정 실패(현재 비밀번호 불일치)";
+		response.sendRedirect(request.getContextPath() + "/member/updateMemberPwForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
 		return;
+	} else {
+		System.out.println("수정 성공");
+		msg = "수정 성공(다시 로그인 하십시오.)";
 	}
+	
+	session.invalidate();
+	response.sendRedirect(request.getContextPath() + "/loginForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
 %>

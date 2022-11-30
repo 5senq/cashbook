@@ -102,6 +102,11 @@
 			%>
 		</div>
 		<div>
+			<a href="<%=request.getContextPath()%>/member/updateMemberForm.jsp">회원정보 수정</a>
+			<a href="<%=request.getContextPath()%>/member/updateMemberPwForm.jsp">비밀번호 수정</a>
+			<a href="<%=request.getContextPath()%>/member/deleteMemberForm.jsp">회원탈퇴</a>
+		</div>
+		<div>
 			<a href="<%=request.getContextPath()%>/cash/cashList.jsp?year=<%=year%>&month=<%=month-1%>">&#8701;이전달</a>
 			<%=year%> 년 <%=month+1%> 월
 			<a href="<%=request.getContextPath()%>/cash/cashList.jsp?year<%=year%>&month=<%=month+1%>">다음달&#8702;</a>
@@ -168,7 +173,6 @@
 			<jsp:include page="/inc/footer.jsp"></jsp:include>
 		</div>
 		<div>
-			<a href="<%=request.getContextPath()%>/cash/cashList.jsp">뒤로</a>
 			<a href="<%=request.getContextPath()%>/logout.jsp">로그아웃</a>
 		</div>
 	</body>

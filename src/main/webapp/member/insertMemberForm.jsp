@@ -6,10 +6,8 @@
 <%
 	request.setCharacterEncoding("UTF-8");
 
-	// 로그인이 되어 있을 때는 접근 불가
 	if(session.getAttribute("loginMember") != null) {
-		String targetUrl = "/loginForm.jsp";
-		response.sendRedirect(request.getContextPath()+targetUrl);
+		response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
 		return;
 	}
 
