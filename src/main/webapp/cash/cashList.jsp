@@ -133,7 +133,7 @@
 									if(date > 0 && date <= lastDate) {
 								%>
 										<div>
-											<a href="<%=request.getContextPath()%>/cash/cashDateList.jsp?year=<%=year%>&month=<%=month+1%>&date=<%=date%>">
+											<a href="<%=request.getContextPath()%>/cash/cashDateList.jsp?year=<%=year%>&month=<%=month%>&date=<%=date%>">
 												<%=date%>
 											</a>
 										</div>

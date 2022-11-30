@@ -27,14 +27,15 @@
 	String memberId = loginMember.getMemberId();
 	
 	// 연도, 월, 일 가져오기
-	if(request.getParameter("year") == null || request.getParameter("year").equals("") || request.getParameter("month") == null || request.getParameter("month").equals("") || request.getParameter("date") == null || request.getParameter("date").equals("")) {
-		response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
-		return;
-	}
 	
 	int year = Integer.parseInt(request.getParameter("year"));
 	int month = Integer.parseInt(request.getParameter("month"));
 	int date = Integer.parseInt(request.getParameter("date"));
+	
+	if(request.getParameter("year") == null || request.getParameter("year").equals("") || request.getParameter("month") == null || request.getParameter("month").equals("") || request.getParameter("date") == null || request.getParameter("date").equals("")) {
+		response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
+		return;
+	}
 	
 	// Model 호출
 	
@@ -87,10 +88,10 @@
 						<td>\<%=(Long)(m.get("cashPrice"))%></td>
 						<td><%=(String)(m.get("cashMemo"))%></td>
 						<td>
-							<a href="<%=request.getContextPath()%>/cash/updateCashForm.jsp?year=<%=year%>&month=<%=month+1%>&date=<%=date%>&cashNo=<%=m.get("cashNo")%>">수정</a>
+							<a href="<%=request.getContextPath()%>/cash/updateCashForm.jsp?year=<%=year%>&month=<%=month%>&date=<%=date%>&cashNo=<%=m.get("cashNo")%>">수정</a>
 						</td>
 						<td>
-							<a href="<%=request.getContextPath()%>/cash/deleteCashAction.jsp?year=<%=year%>&month=<%=month+1%>&date=<%=date%>&cashNo=<%=(Integer)(m.get("cashNo"))%>">삭제</a>
+							<a href="<%=request.getContextPath()%>/cash/deleteCashAction.jsp?year=<%=year%>&month=<%=month%>&date=<%=date%>&cashNo=<%=(Integer)(m.get("cashNo"))%>">삭제</a>
 						</td>
 			</tr>
 			<tr>
@@ -108,7 +109,7 @@
 		<form action="<%=request.getContextPath()%>/cash/insertCashAction.jsp" method="post">
 			<input type="hidden" name="memberId" value="<%=loginMember.getMemberId()%>">
 			<input type="hidden" name="year" value="<%=year%>">
-			<input type="hidden" name="month" value="<%=month+1%>">
+			<input type="hidden" name="month" value="<%=month%>">
 			<input type="hidden" name="date" value="<%=date%>">
 			<table>
 				<tr>
@@ -152,7 +153,7 @@
 			</table>
 			<button type="submit">입력</button>
 		</form>
-		<a href="<%=request.getContextPath()%>/cash/cashList.jsp?year=<%=year%>&month=<%=month+1%>">뒤로</a>
+		<a href="<%=request.getContextPath()%>/cash/cashList.jsp?year=<%=year%>&month=<%=month%>">뒤로</a>
 	</div>
 </body>
 </html>
