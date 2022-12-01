@@ -1,33 +1,43 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="vo.*"%>
 <%@ page import="dao.*"%>
+<%@ page import="java.util.*"%>
 <%@ page import="java.net.URLEncoder"%>
 <%
-	// C
-	String memberId = request.getParameter("memberId");
-	int cashNo = Integer.parseInt(request.getParameter("cashNo"));
-	Long cashPrice = Long.parseLong(request.getParameter("cashPrice"));
-	String cashMemo = request.getParameter("cashMemo");
-	int categoryNo = Integer.parseInt(request.getParameter("categoryNo"));
-	int year = Integer.parseInt(request.getParameter("year"));
-	int month = Integer.parseInt(request.getParameter("month"));
-	int date = Integer.parseInt(request.getParameter("date"));
+	request.setCharacterEncoding("UTF-8");
 	
-	// M 호출시 필요한 매개값
-	Cash cash = new Cash();
-	cash.setCategoryNo(categoryNo);
-	cash.setCashPrice(cashPrice);
-	cash.setCashMemo(cashMemo);
-	cash.setCashNo(cashNo);
-	cash.setMemberId(memberId);
-	
-	// M
-	CashDao cashDao = new CashDao();
-	int row = cashDao.updateCash(cash);
-	
-	if(row == 1) {
-		String msg = URLEncoder.encode("수정완료","utf-8");
-		response.sendRedirect(request.getContextPath() + "/cash/cashDateList.jsp?year=" + year + "&month=" + month + "&date=" + date + "&msg=" + msg);
+	// 로그인 세션
+	if(session.getAttribute("loginMember") == null) {
+		String msg = "로그인이 필요합니다.";
+		response.sendRedirect(request.getContextPath() + "/loginForm.jsp?&msg=" + URLEncoder.encode(msg, "UTF-8"));
 		return;
 	}
+	
+	Member loginMember = (Member)session.getAttribute("loginMember");
+	
+	if(request.getParameter("cashNo") == null || request.getParameter("cashNo").equals("")) {
+		response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
+	}
+	
+	if(request.getParameter("categoryNo") == null || request.getParameter("categoryNo").equals("") || request.getParameter("cashDate") == null || request.getParameter("cashDate").equals("") || request.getParameter("cashPrice") == null || request.getParameter("cashPrice").equals("") || request.getParameter("cashMemo") == null || request.getParameter("cashMemo").equals("")) {
+		response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
+		return;
+	}
+	
+	int cashNo = Integer.parseInt(request.getParameter("cashNo"));
+	int categoryNo = Integer.parseInt(request.getParameter("categoryNo"));
+	String cashDate = request.getParameter("cashDate");
+	long cashPrice = Long.parseLong(request.getParameter("cashPrice"));
+	String cashMemo = request.getParameter("cashMemo");
+	
+	CashDao cashDao = new CashDao();
+	int row = cashDao.updateCashListByDate(cashNo, categoryNo, cashDate, cashPrice, cashMemo);
+	
+	if(row == 1) {
+		System.out.println("수정 성공");
+	} else {
+		System.out.println("수정 실패");
+	}
+	
+	response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
 %>

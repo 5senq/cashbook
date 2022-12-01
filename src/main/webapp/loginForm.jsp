@@ -4,6 +4,8 @@
 <%@ page import="java.sql.*"%>
 <%@ page import="java.util.*"%>
 <%
+	request.setCharacterEncoding("UTF-8");	
+
 	// 로그인이 되어 있을 때는 접근 불가
 	if(session.getAttribute("loginMember") != null) {
 		response.sendRedirect(request.getContextPath()+"/cash/cashList.jsp");
