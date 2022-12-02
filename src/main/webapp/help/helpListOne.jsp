@@ -2,13 +2,23 @@
 <%@ page import="vo.*"%>
 <%@ page import="dao.*"%>
 <%@ page import="java.util.*"%>
+<%@ page import="java.net.URLEncoder"%>
 <%
-	int currentPage = 1;
-	// request.getParameter("currentPage")
-	int rowPerPage = 10;
-	int beginRow = (1-currentPage) * rowPerPage;
-	HelpDao helpDao = new HelpDao();
-	ArrayList<HashMap<String, Object>> list = helpDao.selectHelpList(beginRow, rowPerPage);
+	request.setCharacterEncoding("UTF-8");
+
+	if(session.getAttribute("loginMember") == null) {
+		String msg = "로그인이 필요합니다.";
+		response.sendRedirect(request.getContextPath() + "/loginForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
+		return;
+	}
+	
+	if(request.getParameter("msg") != null) {
+		String msg = request.getParameter("msg");
+		out.println("<script>alert('"+msg+"');</script>");
+		msg = null;
+	}
+	
+	
 %>
 <!DOCTYPE html>
 <html>
