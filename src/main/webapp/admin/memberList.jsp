@@ -3,19 +3,41 @@
 <%@ page import="dao.*"%>
 <%@ page import="java.util.*"%>
 <%
+	request.setCharacterEncoding("UTF-8");
+
 	// C
-	Member loginMember = (Member)session.getAttribute("login");
-	if(loginMember == null || loginMember.getMemberLevel() < 1) {
-		response.sendRedirect(request.getContextPath()+"loginForm.jsp");
+	if(session.getAttribute("loginMember") == null) {
+		response.sendRedirect(request.getContextPath() + "/loginForm.jsp");
 		return;
+	} else {
+		Member loginMember = (Member)session.getAttribute("loginMember");
+		if(loginMember.getMemberLevel() < 1) {
+		response.sendRedirect(request.getContextPath() + "/cash/cashList.jsp");
+		return;
+		}
 	}
+	
+	int currentPage = 1;
+	if(request.getParameter("currentPage") != null) {
+		currentPage = Integer.parseInt(request.getParameter("currentPage"));
+	}
+	
+	int rowPerPage = 10;
 	
 	// M
 	MemberDao memberDao = new MemberDao();
-	ArrayList<Member> list = memberDao.selectMemberListByPage(0, 0);
 	int memberCount = memberDao.selectMemberCount(); // -> lastPage
+	int lastPage = (int)Math.ceil(((double)(memberCount) / rowPerPage));
 	
-	// 최근 공지 5개, 최근 멤버 5명
+	if(currentPage < 1) {
+		response.sendRedirect(request.getContextPath() + "/admin/memberList.jsp?currentPage = 1");
+	} else if(currentPage > lastPage) {
+		response.sendRedirect(request.getContextPath() + "/admin/memberList.jsp?currentPage=" + lastPage);
+	}
+	
+	int beginRow = (currentPage - 1) * rowPerPage;
+	
+	ArrayList<Member> memberList = memberDao.selectMemberListByPage(beginRow, rowPerPage);
 	
 	// View
 %>
@@ -46,11 +68,41 @@
 				<th>강제탈퇴</th>
 			</tr>
 			<%
-				for(Member m : list) {
-					
+				for(Member m : memberList) {
+			%>
+					<tr>
+						<td><%=m.getMemberNo()%></td>
+						<td><%=m.getMemberId()%></td>
+						<td><%=m.getMemberLevel()%></td>
+						<td><%=m.getMemberName()%></td>
+						<td><%=m.getUpdatedate()%></td>
+						<td><%=m.getCreatedate()%></td>
+						<td><a href="<%=request.getContextPath()%>/admin/member/updateMemberLevelForm.jsp?memberId=<%=m.getMemberId()%>">수정</a></td>
+						<td><a href="<%=request.getContextPath()%>/admin/member/deleteMemberByAdminForm.jsp?memberId=<%=m.getMemberId()%>">탈퇴</a></td>
+					</tr>
+			<%		
 				}
 			%>
 		</table>
+		<div>
+			<a href="<%=request.getContextPath()%>/admin/memberList.jsp?currentPage = 1">처음</a>
+			<%
+				if(currentPage > 1) {
+			%>
+					<a href="<%=request.getContextPath()%>/admin/memberList.jsp?currentPage=<%=currentPage - 1%>">이전</a>
+			<%
+				}
+			%>
+			<%=currentPage%> / <%=lastPage%>
+			<%
+				if(currentPage < lastPage) {
+			%>
+					<a href="<%=request.getContextPath()%>/admin/memberList.jsp?currentPage=<%=currentPage + 1%>">다음</a>
+			<%
+				}
+			%>
+			<a href="<%=request.getContextPath()%>/admin/memberList.jsp?currentPage=<%=lastPage%>">마지막</a>
+		</div>
 	</div>
 </body>
 </html>

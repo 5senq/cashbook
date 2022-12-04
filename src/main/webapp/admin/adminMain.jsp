@@ -4,6 +4,8 @@
 <%@ page import="java.util.*"%>
 <%@ page import="java.net.URLEncoder"%>
 <%
+	request.setCharacterEncoding("UTF-8");
+
 	// C
 	
 	// 로그인 유효성 검사
@@ -44,13 +46,65 @@
 <title>adminMain</title>
 </head>
 <body>
-	<ul>
-		<li><a href="<%=request.getContextPath()%>/admin/noticeList.jsp">공지관리</a></li>
-		<li><a href="<%=request.getContextPath()%>/admin/categoryList.jsp">카테고리관리</a></li>
-		<li><a href="<%=request.getContextPath()%>/admin/memberList.jsp">멤버관리</a></li> <!-- 목록, 레벨수정, 강제탈퇴 -->
-	</ul>
 	<div>
-		<!-- adminMain contents -->
+		<table>
+			<tr>
+				<th>최신 공지사항</th>
+			</tr>
+			<tr>
+				<%
+					for(Notice n : noticeList) {
+				%>
+						<td><%=n.getNoticeNo()%></td>
+						<td><%=n.getNoticeMemo()%></td>
+						<td><%=n.getCreatedate()%></td>
+			</tr>
+			<tr>
+				<%
+					}
+				%>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<table>
+			<tr>
+				<th>신규 가입회원</th>
+			</tr>
+			<tr>
+				<%
+					for(Member m : memberList) {
+				%>
+						<td><%=m.getMemberNo()%></td>
+						<td><%=m.getMemberName()%></td>
+						<td><%=m.getCreatedate()%></td>
+				</tr>
+				<tr>
+				<%
+					}
+				%>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<table>
+			<tr>
+				<th>신규 문의사항</th>
+			</tr>
+			<tr>
+				<%
+					for(HashMap<String, Object> h : helpList) {
+				%>
+						<td><%=h.get("helpNo")%></td>
+						<td><%=h.get("helpMemo")%></td>
+						<td><%=h.get("helpCreatedate")%></td>
+			</tr>
+			<tr>
+				<%
+					}
+				%>
+			</tr>
+		</table>
 	</div>
 </body>
 </html>
