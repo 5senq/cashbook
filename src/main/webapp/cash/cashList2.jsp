@@ -1,87 +1,3 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="vo.*"%>
-<%@ page import="dao.*"%>
-<%@ page import="java.util.*"%>
-<%@ page import="java.net.URLEncoder"%>
-<%
-	
-	// Controller : session, request
-	
-	request.setCharacterEncoding("UTF-8");
-	
-	// 로그인 유효성 검사
-	if(session.getAttribute("loginMember") == null) {
-		String msg = "로그인이 필요합니다.";
-		response.sendRedirect(request.getContextPath() + "/loginForm.jsp?msg=" + URLEncoder.encode(msg, "UTF-8"));
-		return;
-	}
-	
-	if(request.getParameter("msg") != null) {
-		String msg = request.getParameter("msg");
-		out.println("<script>alert('"+msg+"');</script>");
-		msg = null;
-	}
-	
-	// session에 저장된 멤버(현재 로그인 사용자)를 Member타입에 저장 
-	Member loginMember = (Member)session.getAttribute("loginMember");
-	String memberId = loginMember.getMemberId();
-	
-	// request 연도 + 월
-	int year = 0;
-	int month = 0;
-	
-	// 연도, 월 구하는 알고리즘
-	if((request.getParameter("year") == null) || request.getParameter("month") == null) {
-		Calendar today = Calendar.getInstance(); // 오늘 날짜
-		year = today.get(Calendar.YEAR);
-		month = today.get(Calendar.MONTH);
-	} else {
-		year = Integer.parseInt(request.getParameter("year"));
-		month = Integer.parseInt(request.getParameter("month"));
-		// month -> -1, month -> 12 경우
-		if(month == -1) {
-			month = 11;
-			year = year -1;
-		} else if(month == 12) {
-			month = 0;
-			year = year + 1;
-		}
-	}
-	// 출력하고자 하는 월과 월의 1일의 요일(일 1, 월 2, 화 3, ... 토 7) 구하기
-	Calendar targetDate = Calendar.getInstance();
-	targetDate.set(Calendar.YEAR, year);
-	targetDate.set(Calendar.MONTH, month);
-	targetDate.set(Calendar.DATE, 1);
-	
-	// firstDay는 1일의 요일
-	int firstDay = targetDate.get(Calendar.DAY_OF_WEEK); // 1일의 요일(일 1, 월 2, 화 3, ... 토 7)
-	// begin blank 개수는 firstDay - 1
-	
-	// 마지막 날짜
-	int lastDate = targetDate.getActualMaximum(Calendar.DATE);
-	
-	// 달력 출력테이블의 시작 공백셀(td)과 마지막 공백셀(td)의 개수
-	int beginBlank = firstDay - 1;
-	int endBlank = 0; // beginBlank + lastDate + endBlank --> 가 7로 나누어 떨어져야한다. --> totalTd
-	if((beginBlank + lastDate) % 7 != 0) {
-		endBlank = 7 - ((beginBlank + lastDate) % 7);
-	}
-	
-	// 전체 td의 개수 : 7로 나누어 떨어져야한다.
-	int totalTd = beginBlank + lastDate + endBlank;
-	
-	long totalCash = 0;
-	long expenseCash = 0;
-	long importCash = 0;
-	
-	// Model 호출 : 일별 cash 목록
-	CashDao cashDao = new CashDao();
-	ArrayList<HashMap<String, Object>> list = cashDao.selectCashListByMonth(year, month+1, memberId);
-	// ArrayList 형태로 저장되어 있는 cashDao.selectCashListByMonth method로 (loginMember.getMemberId(), year, month+1)을 보내고, 결과값 ArrayList<HashMap> 형태로 list값에 세팅한다
-	
-	// View : 달력 출력 + 일별 cash 목록 출력
-%>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -90,17 +6,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>cashList</title>
+    <title>Quixlab - Bootstrap Admin Dashboard Template by Themefisher.com</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="../resources/images/favicon.png">
     <!-- Custom Stylesheet -->
+    <link href="../resources/plugins/fullcalendar/css/fullcalendar.min.css" rel="stylesheet">
     <link href="../resources/css/style.css" rel="stylesheet">
-    <style>
-		td {
-			max-width: 10px;
-			max-height: 10px;
-		}
-    </style>
 
 </head>
 
@@ -131,11 +42,11 @@
         ***********************************-->
         <div class="nav-header">
             <div class="brand-logo">
-                <a href="">
+                <a href="index.html">
                     <b class="logo-abbr"><img src="../resources/images/logo.png" alt=""> </b>
                     <span class="logo-compact"><img src="../resources/images/logo-compact.png" alt=""></span>
                     <span class="brand-title">
-                        <img src="" alt="">
+                        <img src="images/logo-text.png" alt="">
                     </span>
                 </a>
             </div>
@@ -183,7 +94,7 @@
                                     <ul>
                                         <li class="notification-unread">
                                             <a href="javascript:void()">
-                                                <img class="float-left mr-3 avatar-img" src="../resources/images/avatar/1.jpg" alt="">
+                                                <img class="float-left mr-3 avatar-img" src="images/avatar/1.jpg" alt="">
                                                 <div class="notification-content">
                                                     <div class="notification-heading">Saiful Islam</div>
                                                     <div class="notification-timestamp">08 Hours ago</div>
@@ -193,7 +104,7 @@
                                         </li>
                                         <li class="notification-unread">
                                             <a href="javascript:void()">
-                                                <img class="float-left mr-3 avatar-img" src="../resources/images/avatar/2.jpg" alt="">
+                                                <img class="float-left mr-3 avatar-img" src="images/avatar/2.jpg" alt="">
                                                 <div class="notification-content">
                                                     <div class="notification-heading">Adam Smith</div>
                                                     <div class="notification-timestamp">08 Hours ago</div>
@@ -203,7 +114,7 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void()">
-                                                <img class="float-left mr-3 avatar-img" src="../resources/images/avatar/3.jpg" alt="">
+                                                <img class="float-left mr-3 avatar-img" src="images/avatar/3.jpg" alt="">
                                                 <div class="notification-content">
                                                     <div class="notification-heading">Barak Obama</div>
                                                     <div class="notification-timestamp">08 Hours ago</div>
@@ -213,7 +124,7 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void()">
-                                                <img class="float-left mr-3 avatar-img" src="../resources/images/avatar/4.jpg" alt="">
+                                                <img class="float-left mr-3 avatar-img" src="images/avatar/4.jpg" alt="">
                                                 <div class="notification-content">
                                                     <div class="notification-heading">Hilari Clinton</div>
                                                     <div class="notification-timestamp">08 Hours ago</div>
@@ -294,7 +205,7 @@
                         <li class="icons dropdown">
                             <div class="user-img c-pointer position-relative"   data-toggle="dropdown">
                                 <span class="activity active"></span>
-                                <img src="../resources/images/user/1.png" height="40" width="40" alt="">
+                                <img src="images/user/1.png" height="40" width="40" alt="">
                             </div>
                             <div class="drop-down dropdown-profile   dropdown-menu">
                                 <div class="dropdown-content-body">
@@ -329,7 +240,7 @@
         <div class="nk-sidebar">           
             <div class="nk-nav-scroll">
                 <ul class="metismenu" id="menu">
-                    <!-- <li class="nav-label">Dashboard</li> -->
+                    <li class="nav-label">Dashboard</li>
                     <li>
                         <a class="has-arrow" href="javascript:void()" aria-expanded="false">
                             <i class="icon-speedometer menu-icon"></i><span class="nav-text">Dashboard</span>
@@ -454,7 +365,26 @@
                             <li><a href="./table-datatable.html" aria-expanded="false">Data Table</a></li>
                         </ul>
                     </li>
-                    
+                    <li class="nav-label">Pages</li>
+                    <li>
+                        <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                            <i class="icon-notebook menu-icon"></i><span class="nav-text">Pages</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="./page-login.html">Login</a></li>
+                            <li><a href="./page-register.html">Register</a></li>
+                            <li><a href="./page-lock.html">Lock Screen</a></li>
+                            <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">Error</a>
+                                <ul aria-expanded="false">
+                                    <li><a href="./page-error-404.html">Error 404</a></li>
+                                    <li><a href="./page-error-403.html">Error 403</a></li>
+                                    <li><a href="./page-error-400.html">Error 400</a></li>
+                                    <li><a href="./page-error-500.html">Error 500</a></li>
+                                    <li><a href="./page-error-503.html">Error 503</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -477,78 +407,95 @@
             </div>
             <!-- row -->
 
-            <div class="container-fluid" id="calender">
+            <div class="container-fluid">
                 <div class="row">
-                     <div class="col-12">
+                    <div class="col-lg-12">
                         <div class="card">
-                            <div class="card-body" style="height: 550px">
-                                <h4 class="card-title">Calender</h4>
-                                <br>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered verticle-middle" style="height:430px;">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">SUN</th>
-                                                <th scope="col">MON</th>
-                                                <th scope="col">TUE</th>
-                                                <th scope="col">WED</th>
-                                                <th scope="col">THU</th>
-                                                <th scope="col">FRI</th>
-                                                <th scope="col">SAT</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-												<%
-													for(int i=1; i<=totalTd; i++) {
-												%>
-														<td>
-															<%
-																int date = i - beginBlank; // i는 td의 갯수라서 출력하면 안됨
-																if(date > 0 && date <= lastDate) {
-															%>
-																	<div>
-																		<a href="<%=request.getContextPath()%>/cash/cashDateList.jsp?year=<%=year%>&month=<%=month%>&date=<%=date%>">
-																			<%=date%>
-																		</a>
-																	</div>
-																	<br>
-																	<div>
-																		<%
-																			for(HashMap<String, Object> m : list) { // 위 세팅된 ArrayList<HashMap> list를 CashDao Class에서 HashMap<String, Object> m으로 생성했기때문에 foreach문이 다음과 같이 쓰임
-																				String cashDate = (String)(m.get("cashDate")); // m.get 앞 String은 형변환을 해줌
-																				if(Integer.parseInt(cashDate.substring(8)) == date) {
-																		%>
-																					<%=(String)(m.get("categoryKind"))%>
-																					<%=(String)(m.get("categoryName"))%>
-																					&nbsp;
-																					<%=(Long)(m.get("cashPrice"))%>원
-																					<br>
-																		<%			
-																				}
-																			}
-																		%>
-																	</div>
-															<%		
-																}
-															%>
-														</td>
-												<%
-													if(i%7 == 0 && i != totalTd) {
-												%>
-											</tr>
-											<tr> <!-- td 7개 만들고 테이블 줄바꿈 -->
-												<%
-														}
-													}
-												%>
-											</tr>
-                                        </tbody>
-                                    </table>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h4>Calendar</h4>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-2 mt-5">
+                                        <a href="#" data-toggle="modal" data-target="#add-category" class="btn btn-primary btn-block"><i class="ti-plus f-s-12 m-r-5"></i> Create New</a>
+                                        <div id="external-events" class="m-t-20">
+                                            <p>Drag and drop your event or click in the calendar</p>
+                                            <div class="external-event bg-primary text-white" data-class="bg-primary"><i class="fa fa-move"></i>New Theme Release</div>
+                                            <div class="external-event bg-success text-white" data-class="bg-success"><i class="fa fa-move"></i>My Event</div>
+                                            <div class="external-event bg-warning text-white" data-class="bg-warning"><i class="fa fa-move"></i>Meet manager</div>
+                                            <div class="external-event bg-dark text-white" data-class="bg-dark"><i class="fa fa-move"></i>Create New theme</div>
+                                        </div>
+                                        <!-- checkbox -->
+                                        <div class="checkbox m-t-40">
+                                            <input id="drop-remove" type="checkbox">
+                                            <label for="drop-remove">Remove after drop</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <div class="card-box m-b-50">
+                                            <div id="calendar"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- end col -->
+                                    <!-- BEGIN MODAL -->
+                                    <div class="modal fade none-border" id="event-modal">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title"><strong>Add New Event</strong></h4>
+                                                </div>
+                                                <div class="modal-body"></div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-success save-event waves-effect waves-light">Create event</button>
+                                                    <button type="button" class="btn btn-danger delete-event waves-effect waves-light" data-dismiss="modal">Delete</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Modal Add Category -->
+                                    <div class="modal fade none-border" id="add-category">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title"><strong>Add a category</strong></h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <label class="control-label">Category Name</label>
+                                                                <input class="form-control form-white" placeholder="Enter name" type="text" name="category-name">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="control-label">Choose Category Color</label>
+                                                                <select class="form-control form-white" data-placeholder="Choose a color..." name="category-color">
+                                                                    <option value="success">Success</option>
+                                                                    <option value="danger">Danger</option>
+                                                                    <option value="info">Info</option>
+                                                                    <option value="pink">Pink</option>
+                                                                    <option value="primary">Primary</option>
+                                                                    <option value="warning">Warning</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-danger waves-effect waves-light save-category" data-dismiss="modal">Save</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- END MODAL -->
                                 </div>
                             </div>
                         </div>
+                        <!-- /# card -->
                     </div>
+                    <!-- /# column -->
                 </div>
             </div>
             <!-- #/ container -->
@@ -563,7 +510,7 @@
         ***********************************-->
         <div class="footer">
             <div class="copyright">
-                <p>Copyright &copy; Designed & Developed by <a href="https://themeforest.net/user/quixlab">hyunjeong</a> 2022</p>
+                <p>Copyright &copy; Designed & Developed by <a href="https://themeforest.net/user/quixlab">Quixlab</a> 2018</p>
             </div>
         </div>
         <!--**********************************
@@ -582,6 +529,12 @@
     <script src="../resources/js/settings.js"></script>
     <script src="../resources/js/gleek.js"></script>
     <script src="../resources/js/styleSwitcher.js"></script>
+
+    
+    <script src="../resources/plugins/jqueryui/js/jquery-ui.min.js"></script>
+    <script src="../resources/plugins/moment/moment.min.js"></script>
+    <script src="../resources/plugins/fullcalendar/js/fullcalendar.min.js"></script>
+    <script src="../resources/js/plugins-init/fullcalendar-init.js"></script>
 
 </body>
 
